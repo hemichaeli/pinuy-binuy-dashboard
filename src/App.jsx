@@ -83,7 +83,7 @@ function DashboardPage({ onNavigate }) {
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
         <StatCard icon={"🏗️"} label={"מתחמים"} value={health?.complexes || 0} accent="#60a5fa" />
         <StatCard icon={"💰"} label={"עסקאות"} value={health?.transactions || 0} accent="#a78bfa" />
-        <StatCard icon={"🏠"} label={"מודעות"} value={health?.listings || 0} accent="#34d399" />
+        <StatCard icon={"🏠"} label={"מודעות"} value={health?.listings?.total || 0} accent="#34d399" />
         <StatCard icon={"🔔"} label={"התראות"} value={health?.unread_alerts || 0} accent={health?.unread_alerts > 0 ? "#ef4444" : "#6b7280"} />
         <StatCard icon={"⏰"} label={"סריקה אוטומטית"} value={sched?.enabled ? "פעיל" : "כבוי"} sub={sched?.enabled ? "כל יום ראשון 06:00" : ""} accent={sched?.enabled ? "#10b981" : "#ef4444"} />
       </div>
@@ -150,7 +150,7 @@ function OpportunitiesPage({ onNavigate }) {
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <SortHead k="iai_score">IAI</SortHead><SortHead k="name">{"פרויקט"}</SortHead><SortHead k="city">{"עיר"}</SortHead><SortHead k="status">{"סטטוס"}</SortHead><SortHead k="planned_units">{"יח״ד מתוכננות"}</SortHead><SortHead k="existing_units">{"יח״ד קיימות"}</SortHead>
+              <SortHead k="iai_score">IAI</SortHead><SortHead k="name">{"פרויקט"}</SortHead><SortHead k="city">{"עיר"}</SortHead><SortHead k="status">{"סטטוס"}</SortHead><SortHead k="planned_units">{"יח׳ד מתוכננות"}</SortHead><SortHead k="existing_units">{"יח׳ד קיימות"}</SortHead>
               <th style={TH}>{"יזם"}</th><th style={TH}>{"מודעות"}</th><th style={TH}>{"המלצה"}</th>
             </tr></thead>
             <tbody>{filtered.map((p) => (
@@ -196,8 +196,8 @@ function DetailPage({ complexId, onNavigate }) {
       </div>
       <StatusTimeline current={c.status} />
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <StatCard label={"יח״ד מתוכננות"} value={fmt(c.planned_units)} accent="#60a5fa" />
-        <StatCard label={"יח״ד קיימות"} value={fmt(c.existing_units)} accent="#a78bfa" />
+        <StatCard label={"יח׳ד מתוכננות"} value={fmt(c.planned_units)} accent="#60a5fa" />
+        <StatCard label={"יח׳ד קיימות"} value={fmt(c.existing_units)} accent="#a78bfa" />
         <StatCard label={"מכפיל"} value={ratio ? `x${ratio}` : "N/A"} accent="#34d399" />
         <StatCard label={"פרמיה תיאורטית"} value={`${pct(c.theoretical_premium_min)}-${pct(c.theoretical_premium_max)}`} accent="#f59e0b" />
         <StatCard label={"יזם"} value={c.developer || "N/A"} sub={c.developer_strength === "strong" ? "חזק" : c.developer_strength === "weak" ? "חלש" : "בינוני"} accent={c.developer_strength === "strong" ? "#10b981" : c.developer_strength === "weak" ? "#ef4444" : "#f59e0b"} />
@@ -348,7 +348,7 @@ function ScanPage() {
 }
 
 const NAV_ITEMS = [
-  { id: "dashboard", icon: "▣", label: "דשבורד" },
+  { id: "dashboard", icon: "◣", label: "דשבורד" },
   { id: "opportunities", icon: "☆", label: "הזדמנויות" },
   { id: "projects", icon: "○", label: "מתחמים" },
   { id: "alerts", icon: "◇", label: "התראות" },
