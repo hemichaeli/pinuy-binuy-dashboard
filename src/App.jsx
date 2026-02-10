@@ -322,7 +322,7 @@ function ScanPage() {
             <div><span style={{ color: "#64748b" }}>Timezone: </span><span style={{ color: "#e2e8f0" }}>{sched.timezone}</span></div>
             <div><span style={{ color: "#64748b" }}>Perplexity: </span><Badge color={sched.perplexityConfigured ? "#10b981" : "#ef4444"}>{sched.perplexityConfigured ? "מוגדר" : "לא מוגדר"}</Badge></div>
           </div>
-          {sched.lastRun && <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 12, color: "#94a3b8" }}><strong>{"ריצה אחרונה"}</strong>: {sched.lastRun.summary || sched.lastRun.error || "N/A"}</div>}
+          {sched.lastRun && <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 12, color: "#94a3b8" }}><strong>{"ריצה אחרונה"}:</strong> {sched.lastRun.summary || sched.lastRun.error || "N/A"}</div>}
         </div>
       )}
       <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
