@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 const API = "https://pinuy-binuy-analyzer-production.up.railway.app";
+const VERSION = "4.3.1"; // Force rebuild
 
 const fmt = (n) => n != null ? Number(n).toLocaleString("he-IL") : "N/A";
 const fmtPrice = (n) => n != null ? `${fmt(n)} ₪` : "N/A";
@@ -76,12 +77,6 @@ function DashboardPage({ onNavigate }) {
   const { data: opp, loading: ol } = useFetch("/api/opportunities?limit=10");
   const { data: sched } = useFetch("/api/scheduler");
   const { data: alerts } = useFetch("/api/alerts?limit=5");
-  
-  // Debug logging
-  useEffect(() => {
-    console.log('Health data:', health);
-    console.log('Health error:', healthErr);
-  }, [health, healthErr]);
   
   if (hl || ol) return <Spinner />;
   const opportunities = opp?.opportunities || opp?.data || [];
@@ -249,12 +244,6 @@ function ComplexesPage({ onNavigate }) {
   const [search, setSearch] = useState("");
   const [filterCity, setFilterCity] = useState("");
   
-  // Debug logging
-  useEffect(() => {
-    console.log('Projects data:', data);
-    console.log('Projects error:', error);
-  }, [data, error]);
-  
   if (loading) return <Spinner />;
   const projects = data?.projects || data?.data || [];
   const cities = [...new Set(projects.map((p) => p.city))].sort();
@@ -392,7 +381,7 @@ export default function App() {
           <button style={navStyle("alerts")} onClick={() => navigate("alerts")}>🔔 התראות</button>
           <button style={navStyle("scans")} onClick={() => navigate("scans")}>🔄 סריקות</button>
         </nav>
-        <div style={{ fontSize: 11, color: "#475569" }}>v4.3</div>
+        <div style={{ fontSize: 11, color: "#475569" }}>{VERSION}</div>
       </header>
       <main style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px" }}>
         {page === "dashboard" && <DashboardPage onNavigate={navigate} />}
