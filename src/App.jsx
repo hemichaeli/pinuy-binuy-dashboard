@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const API = "https://ravishing-spirit-production-27e1.up.railway.app";
+const API = "https://pinuy-binuy-analyzer-production.up.railway.app";
 
 const fmt = (n) => n != null ? Number(n).toLocaleString("he-IL") : "N/A";
-const fmtPrice = (n) => n != null ? `${fmt(n)} \u20AA` : "N/A";
+const fmtPrice = (n) => n != null ? `${fmt(n)} ₪` : "N/A";
 const pct = (n) => n != null ? `${Number(n).toFixed(0)}%` : "N/A";
 
-const STATUS_HE = { declared: "\u05D4\u05D5\u05DB\u05E8\u05D6", planning: "\u05D1\u05EA\u05DB\u05E0\u05D5\u05DF", pre_deposit: "\u05DC\u05D4\u05E4\u05E7\u05D3\u05D4", deposited: "\u05D4\u05D5\u05E4\u05E7\u05D3\u05D4", approved: "\u05D0\u05D5\u05E9\u05E8\u05D4", permit: "\u05D4\u05D9\u05EA\u05E8 \u05D1\u05E0\u05D9\u05D9\u05D4", construction: "\u05D1\u05D1\u05D9\u05E6\u05D5\u05E2", unknown: "\u05DC\u05D0 \u05D9\u05D3\u05D5\u05E2" };
+const STATUS_HE = { declared: "הוכרז", planning: "בתכנון", pre_deposit: "להפקדה", deposited: "הופקדה", approved: "אושרה", permit: "היתר בנייה", construction: "בביצוע", unknown: "לא ידוע" };
 const IAI_COLORS = { excellent: "#10b981", good: "#f59e0b", moderate: "#ef4444", low: "#6b7280" };
 const IAI_CAT = (s) => s >= 70 ? "excellent" : s >= 50 ? "good" : s >= 30 ? "moderate" : "low";
 const SEVERITY_STYLE = { high: { bg: "rgba(239,68,68,0.12)", border: "#ef4444", dot: "#ef4444" }, medium: { bg: "rgba(245,158,11,0.12)", border: "#f59e0b", dot: "#f59e0b" }, low: { bg: "rgba(107,114,128,0.12)", border: "#6b7280", dot: "#6b7280" }, info: { bg: "rgba(59,130,246,0.12)", border: "#3b82f6", dot: "#3b82f6" } };
@@ -81,21 +81,21 @@ function DashboardPage({ onNavigate }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
-        <StatCard icon={"\uD83C\uDFD7\uFE0F"} label={"\u05DE\u05EA\u05D7\u05DE\u05D9\u05DD"} value={health?.complexes || 0} accent="#60a5fa" />
-        <StatCard icon={"\uD83D\uDCB0"} label={"\u05E2\u05E1\u05E7\u05D0\u05D5\u05EA"} value={health?.transactions || 0} accent="#a78bfa" />
-        <StatCard icon={"\uD83C\uDFE0"} label={"\u05DE\u05D5\u05D3\u05E2\u05D5\u05EA"} value={health?.listings || 0} accent="#34d399" />
-        <StatCard icon={"\uD83D\uDD14"} label={"\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA"} value={health?.unread_alerts || 0} accent={health?.unread_alerts > 0 ? "#ef4444" : "#6b7280"} />
-        <StatCard icon={"\u23F0"} label={"\u05E1\u05E8\u05D9\u05E7\u05D4 \u05D0\u05D5\u05D8\u05D5\u05DE\u05D8\u05D9\u05EA"} value={sched?.enabled ? "\u05E4\u05E2\u05D9\u05DC" : "\u05DB\u05D1\u05D5\u05D9"} sub={sched?.enabled ? "\u05DB\u05DC \u05D9\u05D5\u05DD \u05E8\u05D0\u05E9\u05D5\u05DF 06:00" : ""} accent={sched?.enabled ? "#10b981" : "#ef4444"} />
+        <StatCard icon={"🏗️"} label={"מתחמים"} value={health?.complexes || 0} accent="#60a5fa" />
+        <StatCard icon={"💰"} label={"עסקאות"} value={health?.transactions || 0} accent="#a78bfa" />
+        <StatCard icon={"🏠"} label={"מודעות"} value={health?.listings || 0} accent="#34d399" />
+        <StatCard icon={"🔔"} label={"התראות"} value={health?.unread_alerts || 0} accent={health?.unread_alerts > 0 ? "#ef4444" : "#6b7280"} />
+        <StatCard icon={"⏰"} label={"סריקה אוטומטית"} value={sched?.enabled ? "פעיל" : "כבוי"} sub={sched?.enabled ? "כל יום ראשון 06:00" : ""} accent={sched?.enabled ? "#10b981" : "#ef4444"} />
       </div>
       <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
         <div style={{ padding: "18px 22px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#e2e8f0" }}>{"\uD83C\uDF1F \u05D4\u05D6\u05D3\u05DE\u05E0\u05D5\u05D9\u05D5\u05EA \u05DE\u05D5\u05D1\u05D9\u05DC\u05D5\u05EA"}</h2>
-          <button onClick={() => onNavigate("opportunities")} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "6px 14px", borderRadius: 8, cursor: "pointer", fontSize: 12 }}>{"\u05E6\u05E4\u05D4 \u05D4\u05DB\u05DC \u2190"}</button>
+          <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#e2e8f0" }}>{"🌟 הזדמנויות מובילות"}</h2>
+          <button onClick={() => onNavigate("opportunities")} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "6px 14px", borderRadius: 8, cursor: "pointer", fontSize: 12 }}>{"צפה הכל ←"}</button>
         </div>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              {["\u05E6\u05D9\u05D5\u05DF","IAI","\u05E4\u05E8\u05D5\u05D9\u05E7\u05D8","\u05E2\u05D9\u05E8","\u05E1\u05D8\u05D8\u05D5\u05E1","\u05D9\u05D7\u05F4\u05D3","\u05D9\u05D6\u05DD","\u05DE\u05D5\u05D3\u05E2\u05D5\u05EA"].map((h) => <th key={h} style={TH}>{h}</th>)}
+              {["ציון","IAI","פרויקט","עיר","סטטוס","יח׳ד","יזם","מודעות"].map((h) => <th key={h} style={TH}>{h}</th>)}
             </tr></thead>
             <tbody>{opportunities.map((p, i) => (
               <tr key={p.id} onClick={() => onNavigate("detail", p.id)} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)", cursor: "pointer", transition: "background 0.15s" }} onMouseEnter={(e) => rowHover(e,true)} onMouseLeave={(e) => rowHover(e,false)}>
@@ -114,7 +114,7 @@ function DashboardPage({ onNavigate }) {
       </div>
       {alerts?.alerts?.length > 0 && (
         <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)", padding: "18px 22px" }}>
-          <h2 style={{ margin: "0 0 14px", fontSize: 16, fontWeight: 600, color: "#e2e8f0" }}>{"\uD83D\uDD14 \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA \u05D0\u05D7\u05E8\u05D5\u05E0\u05D5\u05EA"}</h2>
+          <h2 style={{ margin: "0 0 14px", fontSize: 16, fontWeight: 600, color: "#e2e8f0" }}>{"🔔 התראות אחרונות"}</h2>
           {alerts.alerts.map((a) => { const s = SEVERITY_STYLE[a.severity] || SEVERITY_STYLE.info; return (
             <div key={a.id} style={{ padding: "10px 14px", marginBottom: 8, borderRadius: 10, background: s.bg, borderRight: `3px solid ${s.border}`, display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
@@ -138,20 +138,20 @@ function OpportunitiesPage({ onNavigate }) {
   const statuses = [...new Set(raw.map((p) => p.status))].sort();
   const filtered = raw.filter((p) => (!filterCity || p.city === filterCity) && (!filterStatus || p.status === filterStatus)).sort((a, b) => { const av = a[sortKey] ?? 0, bv = b[sortKey] ?? 0; return (typeof av === "string" ? av.localeCompare(bv) : av - bv) * sortDir; });
   const toggleSort = (key) => { if (sortKey === key) setSortDir(-sortDir); else { setSortKey(key); setSortDir(-1); } };
-  const SortHead = ({ k, children }) => <th onClick={() => toggleSort(k)} style={{ ...TH, color: sortKey === k ? "#60a5fa" : "#64748b", cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}>{children} {sortKey === k ? (sortDir === -1 ? "\u25BC" : "\u25B2") : ""}</th>;
+  const SortHead = ({ k, children }) => <th onClick={() => toggleSort(k)} style={{ ...TH, color: sortKey === k ? "#60a5fa" : "#64748b", cursor: "pointer", userSelect: "none", whiteSpace: "nowrap" }}>{children} {sortKey === k ? (sortDir === -1 ? "▼" : "▲") : ""}</th>;
   return (
     <div>
       <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0", flexGrow: 1 }}>{"\u05DB\u05DC \u05D4\u05D4\u05D6\u05D3\u05DE\u05E0\u05D5\u05D9\u05D5\u05EA"} ({filtered.length})</h2>
-        <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)} style={selectStyle}><option value="">{"\u05DB\u05DC \u05D4\u05E2\u05E8\u05D9\u05DD"}</option>{cities.map((c) => <option key={c} value={c}>{c}</option>)}</select>
-        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={selectStyle}><option value="">{"\u05DB\u05DC \u05D4\u05E1\u05D8\u05D8\u05D5\u05E1\u05D9\u05DD"}</option>{statuses.map((s) => <option key={s} value={s}>{STATUS_HE[s] || s}</option>)}</select>
+        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0", flexGrow: 1 }}>{"כל ההזדמנויות"} ({filtered.length})</h2>
+        <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)} style={selectStyle}><option value="">{"כל הערים"}</option>{cities.map((c) => <option key={c} value={c}>{c}</option>)}</select>
+        <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} style={selectStyle}><option value="">{"כל הסטטוסים"}</option>{statuses.map((s) => <option key={s} value={s}>{STATUS_HE[s] || s}</option>)}</select>
       </div>
       <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
           <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
             <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-              <SortHead k="iai_score">IAI</SortHead><SortHead k="name">{"\u05E4\u05E8\u05D5\u05D9\u05E7\u05D8"}</SortHead><SortHead k="city">{"\u05E2\u05D9\u05E8"}</SortHead><SortHead k="status">{"\u05E1\u05D8\u05D8\u05D5\u05E1"}</SortHead><SortHead k="planned_units">{"\u05D9\u05D7\u05F4\u05D3 \u05DE\u05EA\u05D5\u05DB\u05E0\u05E0\u05D5\u05EA"}</SortHead><SortHead k="existing_units">{"\u05D9\u05D7\u05F4\u05D3 \u05E7\u05D9\u05D9\u05DE\u05D5\u05EA"}</SortHead>
-              <th style={TH}>{"\u05D9\u05D6\u05DD"}</th><th style={TH}>{"\u05DE\u05D5\u05D3\u05E2\u05D5\u05EA"}</th><th style={TH}>{"\u05D4\u05DE\u05DC\u05E6\u05D4"}</th>
+              <SortHead k="iai_score">IAI</SortHead><SortHead k="name">{"פרויקט"}</SortHead><SortHead k="city">{"עיר"}</SortHead><SortHead k="status">{"סטטוס"}</SortHead><SortHead k="planned_units">{"יח״ד מתוכננות"}</SortHead><SortHead k="existing_units">{"יח״ד קיימות"}</SortHead>
+              <th style={TH}>{"יזם"}</th><th style={TH}>{"מודעות"}</th><th style={TH}>{"המלצה"}</th>
             </tr></thead>
             <tbody>{filtered.map((p) => (
               <tr key={p.id} onClick={() => onNavigate("detail", p.id)} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)", cursor: "pointer", transition: "background 0.15s" }} onMouseEnter={(e) => rowHover(e,true)} onMouseLeave={(e) => rowHover(e,false)}>
@@ -185,7 +185,7 @@ function DetailPage({ complexId, onNavigate }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <button onClick={() => onNavigate("opportunities")} style={{ background: "none", border: "none", color: "#60a5fa", cursor: "pointer", fontSize: 13, padding: 0, marginBottom: 8 }}>{"\u2192 \u05D7\u05D6\u05E8\u05D4 \u05DC\u05D4\u05D6\u05D3\u05DE\u05E0\u05D5\u05D9\u05D5\u05EA"}</button>
+          <button onClick={() => onNavigate("opportunities")} style={{ background: "none", border: "none", color: "#60a5fa", cursor: "pointer", fontSize: 13, padding: 0, marginBottom: 8 }}>{"→ חזרה להזדמנויות"}</button>
           <h1 style={{ margin: 0, fontSize: 26, fontWeight: 700, color: "#f1f5f9" }}>{c.name}</h1>
           <div style={{ color: "#94a3b8", fontSize: 14, marginTop: 4 }}>{c.city} | {c.region} {c.addresses ? `| ${c.addresses}` : ""}</div>
         </div>
@@ -196,34 +196,34 @@ function DetailPage({ complexId, onNavigate }) {
       </div>
       <StatusTimeline current={c.status} />
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-        <StatCard label={"\u05D9\u05D7\u05F4\u05D3 \u05DE\u05EA\u05D5\u05DB\u05E0\u05E0\u05D5\u05EA"} value={fmt(c.planned_units)} accent="#60a5fa" />
-        <StatCard label={"\u05D9\u05D7\u05F4\u05D3 \u05E7\u05D9\u05D9\u05DE\u05D5\u05EA"} value={fmt(c.existing_units)} accent="#a78bfa" />
-        <StatCard label={"\u05DE\u05DB\u05E4\u05D9\u05DC"} value={ratio ? `x${ratio}` : "N/A"} accent="#34d399" />
-        <StatCard label={"\u05E4\u05E8\u05DE\u05D9\u05D4 \u05EA\u05D9\u05D0\u05D5\u05E8\u05D8\u05D9\u05EA"} value={`${pct(c.theoretical_premium_min)}-${pct(c.theoretical_premium_max)}`} accent="#f59e0b" />
-        <StatCard label={"\u05D9\u05D6\u05DD"} value={c.developer || "N/A"} sub={c.developer_strength === "strong" ? "\u05D7\u05D6\u05E7" : c.developer_strength === "weak" ? "\u05D7\u05DC\u05E9" : "\u05D1\u05D9\u05E0\u05D5\u05E0\u05D9"} accent={c.developer_strength === "strong" ? "#10b981" : c.developer_strength === "weak" ? "#ef4444" : "#f59e0b"} />
+        <StatCard label={"יח״ד מתוכננות"} value={fmt(c.planned_units)} accent="#60a5fa" />
+        <StatCard label={"יח״ד קיימות"} value={fmt(c.existing_units)} accent="#a78bfa" />
+        <StatCard label={"מכפיל"} value={ratio ? `x${ratio}` : "N/A"} accent="#34d399" />
+        <StatCard label={"פרמיה תיאורטית"} value={`${pct(c.theoretical_premium_min)}-${pct(c.theoretical_premium_max)}`} accent="#f59e0b" />
+        <StatCard label={"יזם"} value={c.developer || "N/A"} sub={c.developer_strength === "strong" ? "חזק" : c.developer_strength === "weak" ? "חלש" : "בינוני"} accent={c.developer_strength === "strong" ? "#10b981" : c.developer_strength === "weak" ? "#ef4444" : "#f59e0b"} />
       </div>
       <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: "18px 22px" }}>
-        <h3 style={{ margin: "0 0 14px", fontSize: 14, color: "#94a3b8", fontWeight: 600 }}>{"\u05E4\u05D9\u05E8\u05D5\u05D8 IAI"}</h3>
+        <h3 style={{ margin: "0 0 14px", fontSize: 14, color: "#94a3b8", fontWeight: 600 }}>{"פירוט IAI"}</h3>
         <div style={{ display: "flex", gap: 24, flexWrap: "wrap", fontSize: 13 }}>
           <div><span style={{ color: "#64748b" }}>Premium Gap: </span><span style={{ color: "#e2e8f0", fontFamily: "'JetBrains Mono', monospace" }}>{pct(c.premium_gap)}</span></div>
           <div><span style={{ color: "#64748b" }}>Certainty: </span><span style={{ color: "#e2e8f0", fontFamily: "'JetBrains Mono', monospace" }}>{Number(c.certainty_factor).toFixed(2)}</span></div>
           <div><span style={{ color: "#64748b" }}>Yield: </span><span style={{ color: "#e2e8f0", fontFamily: "'JetBrains Mono', monospace" }}>{Number(c.yield_factor).toFixed(2)}</span></div>
-          <div><span style={{ color: "#64748b" }}>{"\u05D4\u05DE\u05DC\u05E6\u05D4"}: </span><span style={{ color: IAI_COLORS[IAI_CAT(c.iai_score)], fontWeight: 700 }}>{c.recommendation || (c.iai_score >= 70 ? "\u05E8\u05DB\u05D9\u05E9\u05D4 \u05DE\u05D5\u05DE\u05DC\u05E6\u05EA \u05D1\u05D7\u05D5\u05DD" : "\u05E9\u05D5\u05D5\u05D4 \u05D1\u05D3\u05D9\u05E7\u05D4")}</span></div>
+          <div><span style={{ color: "#64748b" }}>{"המלצה"}: </span><span style={{ color: IAI_COLORS[IAI_CAT(c.iai_score)], fontWeight: 700 }}>{c.recommendation || (c.iai_score >= 70 ? "רכישה מומלצת בחום" : "שווה בדיקה")}</span></div>
         </div>
       </div>
       {c.perplexity_summary && (
         <div style={{ background: "rgba(59,130,246,0.05)", borderRadius: 14, border: "1px solid rgba(59,130,246,0.15)", padding: "18px 22px" }}>
-          <h3 style={{ margin: "0 0 10px", fontSize: 14, color: "#60a5fa", fontWeight: 600 }}>{"\uD83E\uDD16 \u05E1\u05D9\u05DB\u05D5\u05DD \u05DE\u05D5\u05D3\u05D9\u05E2\u05D9\u05DF"}</h3>
+          <h3 style={{ margin: "0 0 10px", fontSize: 14, color: "#60a5fa", fontWeight: 600 }}>{"🤖 סיכום מודיעין"}</h3>
           <div style={{ color: "#cbd5e1", fontSize: 13, lineHeight: 1.7, direction: "rtl" }}>{c.perplexity_summary}</div>
-          {c.last_perplexity_update && <div style={{ color: "#475569", fontSize: 11, marginTop: 10 }}>{"\u05E2\u05D3\u05DB\u05D5\u05DF \u05D0\u05D7\u05E8\u05D5\u05DF"}: {new Date(c.last_perplexity_update).toLocaleDateString("he-IL")}</div>}
+          {c.last_perplexity_update && <div style={{ color: "#475569", fontSize: 11, marginTop: 10 }}>{"עדכון אחרון"}: {new Date(c.last_perplexity_update).toLocaleDateString("he-IL")}</div>}
         </div>
       )}
       {ls.length > 0 && (
         <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
-          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}><h3 style={{ margin: 0, fontSize: 14, color: "#e2e8f0", fontWeight: 600 }}>{"\uD83C\uDFE0 \u05DE\u05D5\u05D3\u05E2\u05D5\u05EA \u05E4\u05E2\u05D9\u05DC\u05D5\u05EA"} ({ls.length})</h3></div>
+          <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}><h3 style={{ margin: 0, fontSize: 14, color: "#e2e8f0", fontWeight: 600 }}>{"🏠 מודעות פעילות"} ({ls.length})</h3></div>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>{["\u05DB\u05EA\u05D5\u05D1\u05EA","\u05D7\u05D3\u05E8\u05D9\u05DD","\u05E9\u05D8\u05D7 (m\u00B2)","\u05DE\u05D7\u05D9\u05E8","\u05DC\u05DE\u05F4\u05E8","SSI","\u05DE\u05E7\u05D5\u05E8"].map((h) => <th key={h} style={{ padding: "10px 14px", textAlign: "right", color: "#64748b", fontWeight: 500, fontSize: 11 }}>{h}</th>)}</tr></thead>
+              <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>{["כתובת","חדרים","שטח (m²)","מחיר","למ״ר","SSI","מקור"].map((h) => <th key={h} style={{ padding: "10px 14px", textAlign: "right", color: "#64748b", fontWeight: 500, fontSize: 11 }}>{h}</th>)}</tr></thead>
               <tbody>{ls.map((l) => (
                 <tr key={l.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
                   <td style={{ padding: "10px 14px", color: "#e2e8f0", fontSize: 12 }}>{l.address || "-"}</td>
@@ -254,9 +254,9 @@ function AllProjectsPage({ onNavigate }) {
   return (
     <div>
       <div style={{ display: "flex", gap: 12, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
-        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0", flexGrow: 1 }}>{"\u05DB\u05DC \u05D4\u05DE\u05EA\u05D7\u05DE\u05D9\u05DD"} ({filtered.length})</h2>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={"\u05D7\u05D9\u05E4\u05D5\u05E9..."} style={{...selectStyle, width: 180}} />
-        <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)} style={selectStyle}><option value="">{"\u05DB\u05DC \u05D4\u05E2\u05E8\u05D9\u05DD"}</option>{cities.map((c) => <option key={c} value={c}>{c}</option>)}</select>
+        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0", flexGrow: 1 }}>{"כל המתחמים"} ({filtered.length})</h2>
+        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={"חיפוש..."} style={{...selectStyle, width: 180}} />
+        <select value={filterCity} onChange={(e) => setFilterCity(e.target.value)} style={selectStyle}><option value="">{"כל הערים"}</option>{cities.map((c) => <option key={c} value={c}>{c}</option>)}</select>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 14 }}>
         {filtered.map((p) => (
@@ -269,7 +269,7 @@ function AllProjectsPage({ onNavigate }) {
             </div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 8 }}>{p.city} | {p.region}</div>
             <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}><StatusPill status={p.status} />{p.developer && <span style={{ color: "#64748b", fontSize: 11 }}>{p.developer}</span>}</div>
-            {p.planned_units && <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{fmt(p.existing_units)} {"\u2192"} {fmt(p.planned_units)} {"\u05D9\u05D7\u05F4\u05D3"}</div>}
+            {p.planned_units && <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{fmt(p.existing_units)} {"→"} {fmt(p.planned_units)} {"יח״ד"}</div>}
           </div>
         ))}
       </div>
@@ -286,15 +286,15 @@ function AlertsPage() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0" }}>{"\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA"} ({alerts.length})</h2>
-        {data?.unread_count > 0 && <button onClick={markAll} style={{ background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.3)", color: "#60a5fa", padding: "6px 14px", borderRadius: 8, cursor: "pointer", fontSize: 12 }}>{"\u05E1\u05DE\u05DF \u05D4\u05DB\u05DC \u05DB\u05E0\u05E7\u05E8\u05D0"}</button>}
+        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0" }}>{"התראות"} ({alerts.length})</h2>
+        {data?.unread_count > 0 && <button onClick={markAll} style={{ background: "rgba(96,165,250,0.1)", border: "1px solid rgba(96,165,250,0.3)", color: "#60a5fa", padding: "6px 14px", borderRadius: 8, cursor: "pointer", fontSize: 12 }}>{"סמן הכל כנקרא"}</button>}
       </div>
-      {alerts.length === 0 ? <div style={{ textAlign: "center", padding: 60, color: "#475569" }}>{"\u05D0\u05D9\u05DF \u05D4\u05EA\u05E8\u05D0\u05D5\u05EA"}</div> : alerts.map((a) => {
+      {alerts.length === 0 ? <div style={{ textAlign: "center", padding: 60, color: "#475569" }}>{"אין התראות"}</div> : alerts.map((a) => {
         const s = SEVERITY_STYLE[a.severity] || SEVERITY_STYLE.info;
         return (<div key={a.id} style={{ padding: "14px 18px", marginBottom: 10, borderRadius: 12, background: s.bg, borderRight: `3px solid ${s.border}`, display: "flex", alignItems: "center", gap: 12, opacity: a.is_read ? 0.5 : 1, transition: "opacity 0.2s" }}>
           <div style={{ width: 10, height: 10, borderRadius: "50%", background: s.dot, flexShrink: 0 }} />
           <div style={{ flex: 1 }}><div style={{ fontWeight: 600, color: "#e2e8f0", fontSize: 13 }}>{a.title}</div><div style={{ color: "#94a3b8", fontSize: 12, marginTop: 2 }}>{a.message}</div><div style={{ color: "#475569", fontSize: 11, marginTop: 4 }}>{new Date(a.created_at).toLocaleDateString("he-IL")} | {a.complex_name} ({a.city})</div></div>
-          {!a.is_read && <button onClick={() => markRead(a.id)} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "4px 10px", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>{"\u2713"}</button>}
+          {!a.is_read && <button onClick={() => markRead(a.id)} style={{ background: "none", border: "1px solid rgba(255,255,255,0.1)", color: "#94a3b8", padding: "4px 10px", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>{"✓"}</button>}
         </div>);
       })}
     </div>
@@ -310,25 +310,25 @@ function ScanPage() {
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0" }}>{"\u05E1\u05E8\u05D9\u05E7\u05D4 \u05D5\u05EA\u05D6\u05DE\u05D5\u05DF"}</h2>
-        <button onClick={triggerScan} disabled={scanning || sched?.isRunning} style={{ background: scanning ? "rgba(245,158,11,0.2)" : "rgba(16,185,129,0.15)", border: `1px solid ${scanning ? "#f59e0b50" : "#10b98150"}`, color: scanning ? "#f59e0b" : "#10b981", padding: "8px 18px", borderRadius: 10, cursor: scanning ? "wait" : "pointer", fontSize: 13, fontWeight: 600 }}>{scanning ? "\u05E1\u05D5\u05E8\u05E7..." : "\u05D4\u05E4\u05E2\u05DC \u05E1\u05E8\u05D9\u05E7\u05D4 \u05D9\u05D3\u05E0\u05D9\u05EA"}</button>
+        <h2 style={{ margin: 0, fontSize: 18, color: "#e2e8f0" }}>{"סריקה ותזמון"}</h2>
+        <button onClick={triggerScan} disabled={scanning || sched?.isRunning} style={{ background: scanning ? "rgba(245,158,11,0.2)" : "rgba(16,185,129,0.15)", border: `1px solid ${scanning ? "#f59e0b50" : "#10b98150"}`, color: scanning ? "#f59e0b" : "#10b981", padding: "8px 18px", borderRadius: 10, cursor: scanning ? "wait" : "pointer", fontSize: 13, fontWeight: 600 }}>{scanning ? "סורק..." : "הפעל סריקה ידנית"}</button>
       </div>
       {sched && (
         <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", padding: "18px 22px", marginBottom: 20 }}>
-          <h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#94a3b8" }}>{"\u05E1\u05D8\u05D8\u05D5\u05E1 \u05EA\u05D6\u05DE\u05D5\u05DF"}</h3>
+          <h3 style={{ margin: "0 0 12px", fontSize: 14, color: "#94a3b8" }}>{"סטטוס תזמון"}</h3>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", fontSize: 13 }}>
-            <div><span style={{ color: "#64748b" }}>{"\u05E1\u05D8\u05D8\u05D5\u05E1"}: </span><Badge color={sched.enabled ? "#10b981" : "#ef4444"}>{sched.enabled ? "\u05E4\u05E2\u05D9\u05DC" : "\u05DB\u05D1\u05D5\u05D9"}</Badge></div>
+            <div><span style={{ color: "#64748b" }}>{"סטטוס"}: </span><Badge color={sched.enabled ? "#10b981" : "#ef4444"}>{sched.enabled ? "פעיל" : "כבוי"}</Badge></div>
             <div><span style={{ color: "#64748b" }}>Cron: </span><span style={{ color: "#e2e8f0", fontFamily: "'JetBrains Mono', monospace" }}>{sched.cron}</span></div>
             <div><span style={{ color: "#64748b" }}>Timezone: </span><span style={{ color: "#e2e8f0" }}>{sched.timezone}</span></div>
-            <div><span style={{ color: "#64748b" }}>Perplexity: </span><Badge color={sched.perplexityConfigured ? "#10b981" : "#ef4444"}>{sched.perplexityConfigured ? "\u05DE\u05D5\u05D2\u05D3\u05E8" : "\u05DC\u05D0 \u05DE\u05D5\u05D2\u05D3\u05E8"}</Badge></div>
+            <div><span style={{ color: "#64748b" }}>Perplexity: </span><Badge color={sched.perplexityConfigured ? "#10b981" : "#ef4444"}>{sched.perplexityConfigured ? "מוגדר" : "לא מוגדר"}</Badge></div>
           </div>
-          {sched.lastRun && <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 12, color: "#94a3b8" }}><strong>{"\u05E8\u05D9\u05E6\u05D4 \u05D0\u05D7\u05E8\u05D5\u05E0\u05D4"}:</strong> {sched.lastRun.summary || sched.lastRun.error || "N/A"}</div>}
+          {sched.lastRun && <div style={{ marginTop: 12, padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: 8, fontSize: 12, color: "#94a3b8" }}><strong>{"ריצה אחרונה"}</strong>: {sched.lastRun.summary || sched.lastRun.error || "N/A"}</div>}
         </div>
       )}
       <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 14, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
-        <div style={{ padding: "14px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}><h3 style={{ margin: 0, fontSize: 14, color: "#e2e8f0" }}>{"\u05D4\u05D9\u05E1\u05D8\u05D5\u05E8\u05D9\u05D9\u05EA \u05E1\u05E8\u05D9\u05E7\u05D5\u05EA"}</h3></div>
+        <div style={{ padding: "14px 22px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}><h3 style={{ margin: 0, fontSize: 14, color: "#e2e8f0" }}>{"היסטוריית סריקות"}</h3></div>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
-          <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>{["#","\u05E1\u05D5\u05D2","\u05E1\u05D8\u05D8\u05D5\u05E1","\u05E0\u05E1\u05E8\u05E7\u05D5","\u05E2\u05E1\u05E7\u05D0\u05D5\u05EA","\u05DE\u05D5\u05D3\u05E2\u05D5\u05EA","\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA","\u05EA\u05D0\u05E8\u05D9\u05DA"].map((h) => <th key={h} style={{ padding: "8px 12px", textAlign: "right", color: "#64748b", fontWeight: 500, fontSize: 11 }}>{h}</th>)}</tr></thead>
+          <thead><tr style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>{["#","סוג","סטטוס","נסרקו","עסקאות","מודעות","התראות","תאריך"].map((h) => <th key={h} style={{ padding: "8px 12px", textAlign: "right", color: "#64748b", fontWeight: 500, fontSize: 11 }}>{h}</th>)}</tr></thead>
           <tbody>{(scans?.scans || []).map((s) => (
             <tr key={s.id} style={{ borderBottom: "1px solid rgba(255,255,255,0.03)" }}>
               <td style={{ padding: "8px 12px", color: "#94a3b8" }}>{s.id}</td>
@@ -348,11 +348,11 @@ function ScanPage() {
 }
 
 const NAV_ITEMS = [
-  { id: "dashboard", icon: "\u25A3", label: "\u05D3\u05E9\u05D1\u05D5\u05E8\u05D3" },
-  { id: "opportunities", icon: "\u2606", label: "\u05D4\u05D6\u05D3\u05DE\u05E0\u05D5\u05D9\u05D5\u05EA" },
-  { id: "projects", icon: "\u25CB", label: "\u05DE\u05EA\u05D7\u05DE\u05D9\u05DD" },
-  { id: "alerts", icon: "\u25C7", label: "\u05D4\u05EA\u05E8\u05D0\u05D5\u05EA" },
-  { id: "scans", icon: "\u21BB", label: "\u05E1\u05E8\u05D9\u05E7\u05D5\u05EA" },
+  { id: "dashboard", icon: "▣", label: "דשבורד" },
+  { id: "opportunities", icon: "☆", label: "הזדמנויות" },
+  { id: "projects", icon: "○", label: "מתחמים" },
+  { id: "alerts", icon: "◇", label: "התראות" },
+  { id: "scans", icon: "↻", label: "סריקות" },
 ];
 
 export default function App() {
@@ -366,8 +366,8 @@ export default function App() {
       <header style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(12,15,26,0.85)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "0 24px" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", display: "flex", alignItems: "center", height: 56, gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: 32 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "white" }}>PB</div>
-            <span style={{ fontSize: 15, fontWeight: 700, color: "#f1f5f9", letterSpacing: -0.3 }}>Pinuy Binuy Analyzer</span>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: "linear-gradient(135deg, #3b82f6, #8b5cf6)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, color: "white" }}>Q</div>
+            <span style={{ fontSize: 15, fontWeight: 700, color: "#f1f5f9", letterSpacing: -0.3 }}>QUANTUM</span>
           </div>
           <nav style={{ display: "flex", gap: 2, flex: 1 }}>
             {NAV_ITEMS.map((item) => { const active = page === item.id || (page === "detail" && item.id === "opportunities"); return (
@@ -376,7 +376,7 @@ export default function App() {
                 <span style={{ fontSize: 14 }}>{item.icon}</span>{item.label}
               </button>); })}
           </nav>
-          <div style={{ fontSize: 11, color: "#475569" }}>v2.1</div>
+          <div style={{ fontSize: 11, color: "#475569" }}>v3.0</div>
         </div>
       </header>
       <main style={{ maxWidth: 1280, margin: "0 auto", padding: "24px 24px 80px", position: "relative", zIndex: 1 }}>
