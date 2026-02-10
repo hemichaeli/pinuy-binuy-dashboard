@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 
 const API = "https://pinuy-binuy-analyzer-production.up.railway.app";
-const VERSION = "4.3.1"; // Force rebuild
+const VERSION = "4.3.2";
 
 const fmt = (n) => n != null ? Number(n).toLocaleString("he-IL") : "N/A";
 const fmtPrice = (n) => n != null ? `${fmt(n)} ₪` : "N/A";
@@ -75,20 +75,111 @@ const selectStyle = { background: "rgba(255,255,255,0.05)", border: "1px solid r
 function DashboardPage({ onNavigate }) {
   const { data: health, loading: hl, error: healthErr } = useFetch("/health");
   const { data: opp, loading: ol } = useFetch("/api/opportunities?limit=10");
-  const { data: sched } = useFetch("/api/scheduler");
+  const { data: sched, reload: reloadSched } = useFetch("/api/scheduler");
   const { data: alerts } = useFetch("/api/alerts?limit=5");
+  const [scanning, setScanning] = useState(false);
+  const [scanMessage, setScanMessage] = useState(null);
+  
+  const triggerManualScan = async () => {
+    setScanning(true);
+    setScanMessage(null);
+    try {
+      const res = await fetch(`${API}/api/scheduler/run`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setScanMessage({ type: "success", text: "סריקה הופעלה! הדוח יישלח למייל בסיום." });
+        setTimeout(() => { reloadSched(); setScanMessage(null); }, 10000);
+      } else {
+        setScanMessage({ type: "error", text: data.error || "שגיאה בהפעלת סריקה" });
+      }
+    } catch (err) {
+      setScanMessage({ type: "error", text: "שגיאה בחיבור לשרת" });
+    } finally {
+      setScanning(false);
+    }
+  };
   
   if (hl || ol) return <Spinner />;
   const opportunities = opp?.opportunities || opp?.data || [];
+  const isRunning = sched?.isRunning || scanning;
+  
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      {/* Stats Row */}
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
         <StatCard icon={"🏗️"} label={"מתחמים"} value={health?.complexes || 0} accent="#60a5fa" />
         <StatCard icon={"💰"} label={"עסקאות"} value={health?.transactions || 0} accent="#a78bfa" />
         <StatCard icon={"🏠"} label={"מודעות"} value={health?.active_listings || 0} accent="#34d399" />
         <StatCard icon={"🔔"} label={"התראות"} value={health?.unread_alerts || 0} accent={health?.unread_alerts > 0 ? "#ef4444" : "#6b7280"} />
-        <StatCard icon={"⏰"} label={"סריקה אוטומטית"} value={sched?.enabled ? "פעיל" : "כבוי"} sub={sched?.enabled ? "כל יום ראשון 06:00" : ""} accent={sched?.enabled ? "#10b981" : "#ef4444"} />
       </div>
+      
+      {/* Scan Control Panel */}
+      <div style={{ background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(139,92,246,0.1))", borderRadius: 16, padding: "20px 24px", border: "1px solid rgba(99,102,241,0.2)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#e2e8f0", marginBottom: 6 }}>🔄 סריקת נתונים</h3>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 13, color: "#94a3b8" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ width: 8, height: 8, borderRadius: "50%", background: sched?.enabled ? "#10b981" : "#ef4444" }} />
+                סריקה אוטומטית: {sched?.enabled ? "פעיל" : "כבוי"}
+              </span>
+              <span>|</span>
+              <span>⏰ כל יום ב-08:00</span>
+              <span>|</span>
+              <span>📧 דוח נשלח למייל</span>
+            </div>
+            {sched?.lastRun && (
+              <div style={{ fontSize: 11, color: "#64748b", marginTop: 6 }}>
+                סריקה אחרונה: {new Date(sched.lastRun.completedAt).toLocaleString("he-IL")} 
+                {sched.lastRun.alertsGenerated > 0 && ` (${sched.lastRun.alertsGenerated} התראות חדשות)`}
+              </div>
+            )}
+          </div>
+          <button 
+            onClick={triggerManualScan} 
+            disabled={isRunning}
+            style={{ 
+              background: isRunning ? "#374151" : "linear-gradient(135deg, #10b981, #059669)", 
+              border: "none", 
+              color: "#fff", 
+              padding: "12px 24px", 
+              borderRadius: 10, 
+              cursor: isRunning ? "not-allowed" : "pointer", 
+              fontSize: 14, 
+              fontWeight: 600,
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              boxShadow: isRunning ? "none" : "0 4px 12px rgba(16,185,129,0.3)",
+              transition: "all 0.2s"
+            }}
+          >
+            {isRunning ? (
+              <>
+                <span style={{ width: 16, height: 16, border: "2px solid rgba(255,255,255,0.3)", borderTop: "2px solid #fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+                סורק...
+              </>
+            ) : (
+              <>🚀 הפעל סריקה עכשיו</>
+            )}
+          </button>
+        </div>
+        {scanMessage && (
+          <div style={{ 
+            marginTop: 12, 
+            padding: "10px 14px", 
+            borderRadius: 8, 
+            background: scanMessage.type === "success" ? "rgba(16,185,129,0.15)" : "rgba(239,68,68,0.15)",
+            border: `1px solid ${scanMessage.type === "success" ? "#10b981" : "#ef4444"}`,
+            color: scanMessage.type === "success" ? "#10b981" : "#ef4444",
+            fontSize: 13
+          }}>
+            {scanMessage.text}
+          </div>
+        )}
+      </div>
+      
+      {/* Top Opportunities Table */}
       <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
         <div style={{ padding: "18px 22px 14px", borderBottom: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ margin: 0, fontSize: 16, fontWeight: 600, color: "#e2e8f0" }}>{"🌟 הזדמנויות מובילות"}</h2>
@@ -335,6 +426,34 @@ function ScanPage() {
         <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600, color: "#e2e8f0" }}>סריקה ותזמון</h2>
         <button onClick={triggerScan} disabled={scanning || sched?.isRunning} style={{ background: scanning || sched?.isRunning ? "#374151" : "linear-gradient(135deg, #10b981, #059669)", border: "none", color: "#fff", padding: "10px 20px", borderRadius: 10, cursor: scanning || sched?.isRunning ? "not-allowed" : "pointer", fontSize: 13, fontWeight: 600 }}>{scanning || sched?.isRunning ? "סורק..." : "הפעל סריקה ידנית"}</button>
       </div>
+      
+      {/* Scheduler Status */}
+      <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)", padding: 20, marginBottom: 20 }}>
+        <h3 style={{ margin: "0 0 16px", fontSize: 14, color: "#e2e8f0" }}>סטטוס תזמון</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>סריקה אוטומטית</div>
+            <div style={{ fontSize: 14, color: sched?.enabled ? "#10b981" : "#ef4444", fontWeight: 600 }}>{sched?.enabled ? "✅ פעיל" : "❌ כבוי"}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>תזמון</div>
+            <div style={{ fontSize: 14, color: "#e2e8f0" }}>כל יום ב-08:00 (שעון ישראל)</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>Perplexity AI</div>
+            <div style={{ fontSize: 14, color: sched?.perplexityConfigured ? "#10b981" : "#ef4444" }}>{sched?.perplexityConfigured ? "✅ מוגדר" : "❌ לא מוגדר"}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>Claude AI</div>
+            <div style={{ fontSize: 14, color: sched?.claudeConfigured ? "#10b981" : "#f59e0b" }}>{sched?.claudeConfigured ? "✅ מוגדר" : "⚠️ לא מוגדר"}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4 }}>התראות מייל</div>
+            <div style={{ fontSize: 14, color: sched?.notificationsConfigured ? "#10b981" : "#ef4444" }}>{sched?.notificationsConfigured ? "✅ פעיל" : "❌ לא מוגדר"}</div>
+          </div>
+        </div>
+      </div>
+      
       <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: 16, border: "1px solid rgba(255,255,255,0.06)", overflow: "hidden" }}>
         <div style={{ padding: "16px 20px", borderBottom: "1px solid rgba(255,255,255,0.06)" }}><h3 style={{ margin: 0, fontSize: 14, color: "#e2e8f0" }}>היסטוריית סריקות</h3></div>
         <div style={{ overflowX: "auto" }}>
@@ -371,8 +490,8 @@ export default function App() {
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap');`}</style>
       <header style={{ background: "rgba(17,24,39,0.8)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.06)", padding: "14px 24px", position: "sticky", top: 0, zIndex: 100, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div style={{ width: 38, height: 38, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>PB</div>
-          <div><div style={{ fontWeight: 700, fontSize: 16, letterSpacing: -0.3 }}>Pinuy Binuy</div><div style={{ fontSize: 11, color: "#64748b" }}>Analyzer</div></div>
+          <div style={{ width: 38, height: 38, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 14 }}>Q</div>
+          <div><div style={{ fontWeight: 700, fontSize: 16, letterSpacing: -0.3 }}>QUANTUM</div><div style={{ fontSize: 11, color: "#64748b" }}>Pinuy Binuy Analyzer</div></div>
         </div>
         <nav style={{ display: "flex", gap: 6 }}>
           <button style={navStyle("dashboard")} onClick={() => navigate("dashboard")}>📊 דשבורד</button>
@@ -381,7 +500,7 @@ export default function App() {
           <button style={navStyle("alerts")} onClick={() => navigate("alerts")}>🔔 התראות</button>
           <button style={navStyle("scans")} onClick={() => navigate("scans")}>🔄 סריקות</button>
         </nav>
-        <div style={{ fontSize: 11, color: "#475569" }}>{VERSION}</div>
+        <div style={{ fontSize: 11, color: "#475569" }}>v{VERSION}</div>
       </header>
       <main style={{ maxWidth: 1400, margin: "0 auto", padding: "28px 24px" }}>
         {page === "dashboard" && <DashboardPage onNavigate={navigate} />}
