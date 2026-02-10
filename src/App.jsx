@@ -269,7 +269,7 @@ function AllProjectsPage({ onNavigate }) {
             </div>
             <div style={{ color: "#94a3b8", fontSize: 12, marginBottom: 8 }}>{p.city} | {p.region}</div>
             <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}><StatusPill status={p.status} />{p.developer && <span style={{ color: "#64748b", fontSize: 11 }}>{p.developer}</span>}</div>
-            {p.planned_units && <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{fmt(p.existing_units)} {"→"} {fmt(p.planned_units)} {"יח״ד"}</div>}
+            {p.planned_units && <div style={{ marginTop: 8, color: "#64748b", fontSize: 12 }}>{fmt(p.existing_units)} {"→"} {fmt(p.planned_units)} {"יח׳ד"}</div>}
           </div>
         ))}
       </div>
